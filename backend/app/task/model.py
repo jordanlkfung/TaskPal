@@ -15,7 +15,7 @@ class Task(Base):
     __tablename__ = "task"
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    priority = Column(Enum(TaskPriority), default=TaskPriority.NONE)
+    priority = Column(Enum(TaskPriority))
     creation_date = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc))
     completed = Column(Boolean, default=False)
     completed_date = Column(DateTime)

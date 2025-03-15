@@ -10,7 +10,7 @@ class User(UserBase):
     class Config:
         orm_mode = True
 
-class UserLoginSchmea(UserBase):
+class UserLoginSchema(UserBase):
     pass
 
 class UserSignUpSchema(UserBase):
