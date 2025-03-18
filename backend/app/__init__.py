@@ -27,3 +27,7 @@ app.include_router(collection_router, prefix=f'/api/{version}/collection', tags=
 @app.get("/")
 async def root():
     return {"message":"hello"}
+
+@app.get('/healthcheck')
+async def healthCheck():
+    return {"Health": "Good"}

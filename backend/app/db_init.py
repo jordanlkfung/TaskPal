@@ -1,7 +1,6 @@
 from .database import Base, engine
-from .users import model as user_model
-from .task import model as task_model
-from .collection import model as collection_model
+import asyncio
 
-def create_tables():
-    Base.metadata.create_all(bind=engine)
+async def create_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
