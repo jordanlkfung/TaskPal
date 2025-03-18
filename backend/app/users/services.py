@@ -25,7 +25,7 @@ class UserService:
         if data:
             # Checking if the provided password matches the stored hashed password
             if compare(user.password, data.password):
-                return data.id  # Return the user id from the result data, not from the result object
+                return {"id":data.id, "email":user.email}  # Return the user id from the result data, not from the result object
         
         # If no user is found or the passwords don't match, raise HTTP exception
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -53,9 +53,9 @@ class UserService:
         # Add to the session and commit the changes to the database
         db.add(user_instance)
         await db.commit()
-        await db.refresh(user_instance)  # Refresh to ensure all fields are populated
+        await db.refresh(user_instance)  #adds id to user_instance
 
-        return user_instance.id  # Return the user id after creation
+        return {"id":user_instance.id, "email":user_instance.email}
 
 
     # Logout function (Currently does nothing)
