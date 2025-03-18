@@ -9,6 +9,7 @@ user_router = APIRouter()
 user_service = UserService()
 
 @user_router.get("/login", status_code=status.HTTP_200_OK)
+
 async def login(user:UserLoginSchema, db: AsyncSession = Depends(get_db)):
     res = await user_service.login(user, db)
     return res

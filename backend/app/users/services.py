@@ -20,7 +20,7 @@ class UserService:
     async def login(self, user: UserLoginSchema, db: AsyncSession):
         stmt = select(User.id, User.password).where(User.email == user.email)
         result = await db.execute(stmt)
-        data = result.fetchone()  # Getting the user data
+        data = result.fetchone() 
         
         if data:
             # Checking if the provided password matches the stored hashed password
@@ -44,8 +44,8 @@ class UserService:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Account already exists")
         
         # Hash the password and create user
-        user_dict = user.model_dump()  # Assuming this method returns the dict representation of the schema
-        user_dict['password'] = hash(user_dict['password'])  # Hash the password before saving
+        user_dict = user.model_dump()
+        user_dict['password'] = hash(user_dict['password']) 
         
         # Create a new user instance
         user_instance = User(**user_dict)
@@ -57,6 +57,7 @@ class UserService:
 
         return user_instance.id  # Return the user id after creation
 
+
     # Logout function (Currently does nothing)
     async def logout(self, db: Session):
-        pass  # Logic for logging out can be added here, depending on your app requirements
+        pass 
