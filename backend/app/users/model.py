@@ -10,4 +10,4 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     date_created = Column(DateTime, default =datetime.datetime.now)
-    collection = relationship('Collection', back_populates='users')
+    collection = relationship('Collection', back_populates='collectionOwner')
