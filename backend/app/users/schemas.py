@@ -7,8 +7,6 @@ class UserBase(BaseModel):
 class User(UserBase):
     id: int
 
-    class Config:
-        orm_mode = True
 
 class UserLoginSchema(UserBase):
     pass

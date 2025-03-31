@@ -8,7 +8,7 @@ from fastapi import HTTPException, status
 
 # Hash password function
 def hash(value: str) -> str:
-    return bcrypt.hashpw(value.encode(), bcrypt.gensalt()).decode()  # Decoding to return a string
+    return bcrypt.hashpw(value.encode(), bcrypt.gensalt()).decode()
 
 # Compare password function
 def compare(value: str, hashed_val: str) -> bool:
@@ -25,9 +25,8 @@ class UserService:
         if data:
             # Checking if the provided password matches the stored hashed password
             if compare(user.password, data.password):
-                return {"id":data.id, "email":user.email}  # Return the user id from the result data, not from the result object
+                return {"id":data.id, "email":user.email} 
         
-        # If no user is found or the passwords don't match, raise HTTP exception
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                              detail="Invalid email or password")
 
@@ -58,6 +57,5 @@ class UserService:
         return {"id":user_instance.id, "email":user_instance.email}
 
 
-    # Logout function (Currently does nothing)
     async def logout(self, db: Session):
         pass 
