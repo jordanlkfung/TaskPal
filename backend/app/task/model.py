@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import enum
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum, Boolean
 from sqlalchemy.orm import relationship
@@ -16,7 +16,7 @@ class Task(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     priority = Column(Enum(TaskPriority))
-    creation_date = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc))
+    creation_date = Column(DateTime, default=datetime.now)
     completed = Column(Boolean, default=False)
     completed_date = Column(DateTime)
     collection_id = Column(Integer, ForeignKey('collection.id'))

@@ -1,11 +1,14 @@
 import unittest
 import os
 from fastapi.testclient import TestClient
-
-from ..app import app
-from ..app.database import get_db
-from ..app.db_init import create_tables
-from ..app.users.model import User
+import sys
+# print(sys.path[0])
+sys.path.append(sys.path[0] + '/..')
+# print(sys.path[0])
+from app import app
+from app.database import get_db
+from app.db_init import create_tables
+from app.users.model import User
 
 from sqlalchemy import select
 # from app.database import get_db
@@ -51,6 +54,7 @@ class TestUser(unittest.IsolatedAsyncioTestCase):
     async def test_default(self):
         response = self.client.get("/healthcheck")
         self.assertEqual(response.json(), {"Health": "Good"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         
     # async def test_add_user(self):
     #     '''Test the creation of task'''
@@ -116,7 +120,37 @@ async def override_get_db() -> AsyncSession:
 # Override the dependency for tests
 app.dependency_overrides[get_db] = override_get_db       
 
-        
+@pytest.fixture(scope='function')
+async def db_session():
+    connection = test_engine.connect()
+    transaction = connection.begin()
+    session = test_async_session_maker(bind=connection)
+    yield session
+    session.close()
+    transaction.rollback()
+    connection.close()
+
+@pytest.fixture(scope='function')
+async def test_client(db_session):
+    async def override_get_db() -> AsyncSession:
+        async with test_async_session_maker() as session:
+            yield session
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app) as test_client:
+        yield test_client
+
+@pytest.fixture()
+def user_payload():
+    return{
+        "email":"test@test.com",
+        "password":"password"
+    }
+
+@pytest.fixture()
+async def test_add_user(test_client, user_payload):
+    response = await test_client.post(f'{BASE_URL}/user', json= user_payload)
+
+    assert response.status_code == status.HTTP_201_CREATED
 
 if __name__ == "__main__":
     unittest.main()
