@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, insert, update, delete
+from sqlalchemy import select, delete
 from .model import Task
 from .schemas import addTaskSchema, updateTaskSchema
 from fastapi import HTTPException, status
@@ -89,19 +89,19 @@ class TaskService:
             stmt = select(Task).where(Task.id == updated_task.id)
 
             result = await db.execute(stmt)
-            task = result.scalar_one_or_none()
+            task:Task = result.scalar_one_or_none()
 
             if not task:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
             
-
-            for attribute, value in updated_task.model_dump():
+            for attribute, value in updated_task.model_dump().items():
+                print(attribute)
                 setattr(task, attribute, value)
-
             await db.commit()
 
         except HTTPException as e:
             raise e
         except Exception as e:
+            print(e)
             await db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
