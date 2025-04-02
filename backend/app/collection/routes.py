@@ -13,14 +13,13 @@ async def getUserCollections(userId:int, db:AsyncSession = Depends(get_db)):
 
 @collection_router.post("/add", status_code=status.HTTP_201_CREATED)
 async def addCollection(new_collection:createCollectionSchema, db:AsyncSession =Depends(get_db)):
-    print(new_collection)
     res = await collection_service.addCollection(new_collection, db)
-    return res
+    return {"collection_id":res}
 
-@collection_router.delete("/{collection_id}")
-async def deleteCollection(collection_id:int):
-    collection_service.deleteCollection(collection_id)
+@collection_router.delete("/{collection_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def deleteCollection(collection_id:int, db:AsyncSession = Depends(get_db)):
+    await collection_service.deleteCollection(collection_id, db)
 
-@collection_router.patch("/{collection_id}")
-async def modifyCollection(collection:modifyCollectionSchema):
-    collection_service.modifyCollection(collection)
+@collection_router.patch("/")
+async def modifyCollection(collection:modifyCollectionSchema, db:AsyncSession = Depends(get_db)):
+    await collection_service.modifyCollection(collection, db)

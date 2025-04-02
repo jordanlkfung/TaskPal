@@ -19,19 +19,18 @@ class CollectionService():
 
     async def modifyCollection(self, modified_collection:modifyCollectionSchema, db:AsyncSession):
         try:
-            # stmt = select(Collection).where(Collection.id == modified_collection.id)
             collection = await db.get(Collection, modified_collection.id)
-
             if not collection:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Collection not found")
             
-            for attribute, value in modified_collection.model_dump():
+            for attribute, value in modified_collection.model_dump().items():
                 setattr(collection, attribute, value)
 
-            await db.commit(collection)
+            await db.commit()
         except HTTPException as e:
             raise e
         except Exception as e:
+            print(e)
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     async def deleteCollection(self, collectionId: int, db:AsyncSession):
@@ -41,6 +40,7 @@ class CollectionService():
             #make sure number of rows changed = 1
             if result.rowcount != 1:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+            await db.commit()
         except HTTPException as e:
             raise e
         except Exception:
