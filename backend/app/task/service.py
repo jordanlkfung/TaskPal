@@ -4,16 +4,25 @@ from .model import Task
 from .schemas import addTaskSchema, updateTaskSchema
 from fastapi import HTTPException, status
 from datetime import datetime
+
 class TaskService:
     async def getTasks(self, collection_Id:int, db:AsyncSession):
         try:
-            stmt = select(Task).where(Task.collection_id == collection_Id)
+            stmt = select(Task.id, Task.name,Task.priority, Task.creation_date, Task.completed).where(Task.collection_id == collection_Id)
             result = await db.execute(stmt)
 
             data = result.fetchall()
 
-            return data
+            res = []
+            for id, name, priority, create_date, completed in data:
+                res.append({"id":id,
+                            "name":name,
+                            "priority":priority,
+                            "create_date":create_date,
+                            "completed":completed})
+            return res
         except Exception as e:
+            print(e)
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     async def addTask(self, data:addTaskSchema, db:AsyncSession):
