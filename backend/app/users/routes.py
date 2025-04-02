@@ -8,12 +8,9 @@ user_router = APIRouter()
 user_service = UserService()
 
 @user_router.post("/login", status_code=status.HTTP_200_OK)
-
 async def login(user:UserLoginSchema, db: AsyncSession = Depends(get_db)):
-    res = await user_service.login(user, db)
-    return res
+    return await user_service.login(user, db)
 
 @user_router.post('/signup', status_code=status.HTTP_201_CREATED)
 async def signup(new_user:UserSignUpSchema, db:AsyncSession = Depends(get_db)):
-    res = await user_service.signUp(new_user, db)
-    return res
+    return await user_service.signUp(new_user, db)
