@@ -1,14 +1,20 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
-from .model import Task
+from sqlalchemy import select, delete, desc
+from .model import Task, TaskPriority
 from .schemas import addTaskSchema, updateTaskSchema
 from fastapi import HTTPException, status
 from datetime import datetime
 
+
 class TaskService:
-    async def getTasks(self, collection_Id:int, db:AsyncSession):
+    async def getTasks(self, collection_Id:int, db:AsyncSession, order:str):
         try:
-            stmt = select(Task.id, Task.name,Task.priority, Task.creation_date, Task.completed).where(Task.collection_id == collection_Id)
+            stmt = select(Task.id, Task.name,Task.priority, Task.creation_date, Task.completed).where(Task.collection_id == collection_Id).order_by(Task.completed)
+
+            if order == 'priority':
+                stmt = stmt.order_by(Task.priority)
+                
+            stmt = stmt.order_by(Task.creation_date)
             result = await db.execute(stmt)
 
             data = result.fetchall()
@@ -105,3 +111,4 @@ class TaskService:
             print(e)
             await db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
