@@ -61,3 +61,33 @@ class CollectionService():
             return ret
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    async def authenticate_collection_owner(self, userId:int, collection_id:int, db:AsyncSession):
+        stmt = select(Collection.collectionOwner_id).where(
+            (Collection.id == collection_id) & (Collection.collectionOwner_id == userId)
+            )
+        
+        try:
+            result = await db.execute(stmt)
+
+            data = result.one_or_none()
+            if not data:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    
+    async def collection_exists(self, collection_id:int, db:AsyncSession):
+        stmt = select(Collection.id).where(Collection.id==collection_id)
+        try:
+            result = await db.execute(stmt)
+
+            data = result.one_or_none()
+            
+            if not data:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
