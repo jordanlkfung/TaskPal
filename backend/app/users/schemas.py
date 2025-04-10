@@ -14,3 +14,6 @@ class UserLoginSchema(UserBase):
 class UserSignUpSchema(UserBase):
     pass
     # confirm_password:str
+class UserHeaders(BaseModel):
+    id:int
+    email:str
