@@ -3,6 +3,7 @@ from .service import CollectionService
 from .schemas import createCollectionSchema, modifyCollectionSchema
 from ..database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
+from ..utils.authentication import get_user_from_token
 
 collection_router = APIRouter()
 collection_service = CollectionService()
