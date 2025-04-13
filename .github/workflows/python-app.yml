@@ -5,6 +5,11 @@ name: Python Testing
 
 on: [push]
 
+env:
+  API_VERSION: v1
+  JWT_SECRET: secret
+  JWT_ALGORITHM: HS256
+  
 permissions:
   contents: read
 
@@ -32,5 +37,6 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
+      working-directory: ./backend
       run: |
         pytest tests/integration

@@ -33,6 +33,7 @@ class UserService:
             # Checking if the provided password matches the stored hashed password
             if compare(user.password, data.password):
                 res = setHeaders(UserHeaders(email=user.email, id=data.id), success_message="Login Successful")
+                res.status_code = status.HTTP_200_OK
                 return res
 
         
@@ -44,7 +45,7 @@ class UserService:
     # Sign-up function
     async def signUp(self, user: UserSignUpSchema, db: AsyncSession):
         '''Sign Up service, raises HTTP exception if user already exists, otherwise creates user'''
-        
+        print(user)
         # Check if user email already exists
         stmt = select(User).where(User.email == user.email)
         result = await db.execute(stmt)
@@ -55,6 +56,7 @@ class UserService:
         
         # Hash the password and create user
         user_dict = user.model_dump()
+        print(user_dict)
         user_dict['password'] = hash(user_dict['password']) 
         
         # Create a new user instance
@@ -65,8 +67,9 @@ class UserService:
         await db.commit()
         await db.refresh(user_instance)  #adds id to user_instance
 
-        return setHeaders(UserHeaders(user_instance.id, user_instance.email), success_message="Sign up successful")
-
+        res = setHeaders(UserHeaders(id=user_instance.id, email=user_instance.email), success_message="Sign up successful")
+        res.status_code = status.HTTP_201_CREATED
+        return res
 
     async def logout(self, db: Session):
         pass 

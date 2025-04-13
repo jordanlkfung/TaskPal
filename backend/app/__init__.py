@@ -1,33 +1,37 @@
 from fastapi import FastAPI
-from app.users.routes import user_router
 from contextlib import asynccontextmanager
-from .db_init import create_tables
-from .task.routes import task_router
-from .collection.routes import collection_router
+from dotenv import load_dotenv
+from .database import sessionmanager
+import os
+load_dotenv()
+version = os.getenv("API_VERSION")
 
-# create_tables()
-@asynccontextmanager
-async def lifespan(app:FastAPI):
-    print("Server is starting")
-    yield
-    print("Server is shutting down")
+def init_app(init_db=True):
+    lifespan = None
 
-version = 'v1'
+    if init_db:
+        sessionmanager.init(os.getenv("DB_URL"))
 
-app = FastAPI(
-    title="TaskPal",
-    version=version,
-    lifespan=lifespan
-)
+        @asynccontextmanager
+        async def lifespan(app: FastAPI):
+            print("Server is starting")
+            yield
+            if sessionmanager._engine is not None:
+                await sessionmanager.close()
+            print("Server is shutting down")
 
-app.include_router(user_router, prefix=f'/api/{version}/user', tags=['user'])
-app.include_router(task_router, prefix=f'/api/{version}/task', tags=['task'])
-app.include_router(collection_router, prefix=f'/api/{version}/collection', tags=['collection'])
+    server = FastAPI(title="FastAPI server", lifespan=lifespan)
 
-@app.get("/")
-async def root():
-    return {"message":"hello"}
+    from app.users.routes import user_router
+    from app.task.routes import task_router
+    from app.collection.routes import collection_router
 
-@app.get('/healthcheck')
-async def healthCheck():
-    return {"Health": "Good"}
+    server.include_router(user_router, prefix="/api/v1/user", tags=["user"])
+    server.include_router(task_router, prefix=f'/api/{version}/task', tags=['task'])
+    server.include_router(collection_router, prefix=f'/api/{version}/collection', tags=['collection'])
+    
+    @server.get('/healthcheck')
+    async def healthCheck():
+        return {"Health": "Good"}
+
+    return server
