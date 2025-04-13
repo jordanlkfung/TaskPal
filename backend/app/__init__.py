@@ -35,3 +35,4 @@ def init_app(init_db=True):
         return {"Health": "Good"}
 
     return server
+app = init_app()
