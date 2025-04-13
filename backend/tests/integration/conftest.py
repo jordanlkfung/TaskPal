@@ -2,23 +2,26 @@ import asyncio
 from contextlib import ExitStack
 import pytest
 import sys
+from fastapi import Response
 sys.path.append(sys.path[0] + '/../..')
 print(sys.path[0])
 from httpx import AsyncClient, ASGITransport
 from pytest_postgresql import factories
 from pytest_postgresql.janitor import DatabaseJanitor
-from sqlalchemy.testing.entities import ComparableEntity
 import pytest_asyncio
-
 from app import init_app
 from app.users.model import User
 from app.collection.model import Collection
 from app.task.model import Task
 from app.users.services import hash
 from app.database import get_db, sessionmanager
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+version = os.getenv("API_VERSION")
+test_url = "http://test/api/" + version
 
-test_url = "http://test"
 @pytest.fixture(autouse=True)
 def app():
     with ExitStack():
@@ -40,9 +43,7 @@ def event_loop(request):
     loop.close()
 
 
-# @pytest.fixture(scope="session", autouse=True)
 @pytest_asyncio.fixture(scope="session", autouse=True)
-# @pytest_asyncio.fixture
 async def connection_test(test_db, event_loop):
     pg_host = test_db.host
     pg_port = test_db.port
@@ -58,7 +59,6 @@ async def connection_test(test_db, event_loop):
         yield
         await sessionmanager.close()
 
-# @pytest.fixture(scope="function", autouse=True)
 @pytest_asyncio.fixture(scope='function', autouse=True)
 async def create_tables(connection_test):
     async with sessionmanager.connect() as connection:
@@ -66,11 +66,7 @@ async def create_tables(connection_test):
         await sessionmanager.create_all(connection)
     
     
-
-
-# @pytest.fixture(scope="function", autouse=True)
 @pytest_asyncio.fixture(scope='function', autouse=True)
-# @pytest_asyncio.fixture
 async def session_override(app, connection_test):
     async def get_db_override():
         async with sessionmanager.session() as session:
@@ -115,3 +111,11 @@ async def create_test_task(create_test_collection:Collection):
         await session.commit()
         await session.refresh(task_instance)
     return task_instance
+
+@pytest_asyncio.fixture()
+async def get_auth_header_for_user(client, create_test_user, get_test_user):
+    response:Response = await client.post("/user/login", json=get_test_user)
+    auth_header = response.headers.get("Authorization")
+    return auth_header
+
+    

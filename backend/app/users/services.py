@@ -52,7 +52,7 @@ class UserService:
         user_exists = result.fetchone()
         
         if user_exists:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Account already exists")
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account already exists")
         
         # Hash the password and create user
         user_dict = user.model_dump()
