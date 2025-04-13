@@ -5,6 +5,11 @@ name: Python Testing
 
 on: [push]
 
+env:
+  API_VERSION: v1
+  JWT_SECRET: secret
+  JWT_ALGORITHM: HS256
+  
 permissions:
   contents: read
 
