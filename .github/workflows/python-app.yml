@@ -9,6 +9,7 @@ env:
   API_VERSION: v1
   JWT_SECRET: secret
   JWT_ALGORITHM: HS256
+  DB_URL: test
   
 permissions:
   contents: read
