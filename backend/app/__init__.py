@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
-from .database import sessionmanager
+from .database import sessionmanager, Base
 import os
 load_dotenv()
 version = os.getenv("API_VERSION")
@@ -35,3 +35,4 @@ def init_app(init_db=True):
         return {"Health": "Good"}
 
     return server
+app = init_app()

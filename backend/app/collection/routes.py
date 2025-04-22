@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from .service import CollectionService
-from .schemas import createCollectionSchema, modifyCollectionSchema
+from .schemas import collectionBase, modifyCollectionSchema
 from ..database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..utils.authentication import get_user_from_token
@@ -14,8 +14,8 @@ async def getUserCollections(userId:int = Depends(get_user_from_token), db:Async
     return await collection_service.getCollections(userId, db)
 
 @collection_router.post("/add", status_code=status.HTTP_201_CREATED)
-async def addCollection(new_collection:createCollectionSchema, db:AsyncSession =Depends(get_db)):
-    res = await collection_service.addCollection(new_collection, db)
+async def addCollection(new_collection:collectionBase, userId:int = Depends(get_user_from_token), db:AsyncSession =Depends(get_db)):
+    res = await collection_service.addCollection(new_collection,userId, db)
     return {"collection_id":res}
 
 @collection_router.delete("/{collection_id}", status_code=status.HTTP_204_NO_CONTENT)

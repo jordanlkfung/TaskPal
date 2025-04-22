@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 
-class createCollectionSchema(BaseModel):
+class collectionBase(BaseModel):
     name: str
+class createCollectionSchema(collectionBase):
     collectionOwner_id:int
 
 class modifyCollectionSchema(BaseModel):
