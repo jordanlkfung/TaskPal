@@ -16,6 +16,7 @@ from app.task.model import Task
 from app.users.services import hash
 from app.database import get_db, sessionmanager
 from dotenv import load_dotenv
+from app.utils.authentication import jwt_service
 import os
 
 load_dotenv()
@@ -94,6 +95,7 @@ async def create_test_user(get_test_user):
 
     return user_instance.id
 
+
 @pytest_asyncio.fixture()
 async def create_test_collection(create_test_user) ->Collection:
     collection_instance = Collection(collectionOwner_id = create_test_user, name="test_collection")
@@ -118,4 +120,12 @@ async def get_auth_header_for_user(client, create_test_user, get_test_user):
     auth_header = response.headers.get("Authorization")
     return auth_header
 
-    
+@pytest_asyncio.fixture()
+async def get_auth_header_for_second_user(client, create_second_test_user, get_second_test_user):
+    response:Response = await client.post("/user/login", json=get_second_test_user)
+    auth_header = response.headers.get("Authorization")
+    return auth_header
+
+@pytest_asyncio.fixture()
+async def get_invalid_auth_heater():
+    return jwt_service.create_token({"id": 11, "email":"invalid_test@test.com"})

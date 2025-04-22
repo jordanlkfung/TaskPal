@@ -1,13 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from .model import Collection
-from .schemas import createCollectionSchema, modifyCollectionSchema
+from .schemas import collectionBase, modifyCollectionSchema
 from sqlalchemy import select, delete
 from fastapi import HTTPException, status
 class CollectionService():
-    async def addCollection(self, collection: createCollectionSchema, db:AsyncSession):
+    async def addCollection(self, collection: collectionBase, userId, db:AsyncSession):
         try:
             new_collection = collection.model_dump()
-            new_collection_instance = Collection(**new_collection)
+            new_collection_instance = Collection(name=collection.name, collectionOwner_id=userId)
             db.add(new_collection_instance)
             #check row changed
             await db.commit()

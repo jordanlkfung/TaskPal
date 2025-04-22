@@ -56,7 +56,7 @@ class UserService:
         
         # Hash the password and create user
         user_dict = user.model_dump()
-        print(user_dict)
+
         user_dict['password'] = hash(user_dict['password']) 
         
         # Create a new user instance

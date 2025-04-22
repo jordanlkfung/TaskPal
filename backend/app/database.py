@@ -1,6 +1,6 @@
 import contextlib
 from typing import AsyncIterator
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker, AsyncEngine, AsyncConnection
 import os
 from dotenv import load_dotenv
@@ -10,9 +10,9 @@ url = os.getenv("DB_URL")
 
 # engine = create_async_engine(url)
 # Session = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
-Base = declarative_base()
-
-
+# Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 class DatabaseSessionManager():
     def __init__(self):

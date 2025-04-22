@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
-from .database import sessionmanager
+from .database import sessionmanager, Base
 import os
 load_dotenv()
 version = os.getenv("API_VERSION")
