@@ -52,7 +52,7 @@ async def test_update_collection(client, get_auth_header_for_user, create_test_c
 
 @pytest.mark.asyncio
 async def test_update_collection_invalid_token(client, get_invalid_auth_heater, create_test_collection:Collection):
-    response = await client.patch('collection', headers = {"Authorization":get_invalid_auth_heater})
+    response = await client.patch('collection/', headers = {"Authorization":get_invalid_auth_heater})
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == {'detail': 'Unauthorized'}
 
