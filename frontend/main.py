@@ -28,6 +28,7 @@ class urls:
 
 class app:
     def __init__(self, root:tk.Tk):
+        root.geometry("600x500")
         self.root = root
         self.token = None
         self.nav = ttk.Frame(self.root)
@@ -35,7 +36,7 @@ class app:
         self.content.place(relwidth=1, relheight=1)
         self.initScreen()
     
-    def loginfunc(self, email, password):
+    def loginfunc(self, email = "test21@com.com", password = 'testfield1'):
         response = requests.post(f'{BASE_URL}/user/login', json={"email":email, 'password':password})
         self.token = response.headers['Authorization']
         if self.token:
@@ -66,22 +67,21 @@ class app:
         root =self.content
         for i in self.content.winfo_children():
             i.destroy()
-        ttk.Button(self.content,text="back", command=self.initScreen).pack()
-        ttk.Label(self.content, text=buttonText).pack()
+        ttk.Label(self.content, text=buttonText).pack(pady=15)
         email = tk.StringVar()
-        email.set("test21@com.com")
-        email_label = ttk.Label(root, text="Email")
-        email_label.pack()
-        email_entry = ttk.Entry(root, textvariable=email, width=30)
-        email_entry.pack()
+        tk.Label(root, text="Email").pack(pady=10)
+        ttk.Entry(root, textvariable=email, width=30).pack(pady=10)
         password = tk.StringVar()
-        password.set("testfield1")
-        password_label = ttk.Label(root, text="Password")
-        password_label.pack()
-        password_entry = ttk.Entry(root, textvariable=password, width=30)
-        password_entry.pack(padx=10)
+        ttk.Label(root, text="Password").pack(pady=10)
+        ttk.Entry(root, textvariable=password, width=30).pack(pady=10)
         button = ttk.Button(root, text=buttonText, command=lambda x=email.get(), y=password.get():func(x,y))
-        button.pack(padx=10)
+        button.pack(pady=10)
+        if buttonText == 'Sign Up':
+            ttk.Button(self.content,text="Have an Account? Click to Login In", command=lambda x='Login': self.userForm(x, self.loginfunc)).pack(pady=10)
+        else:
+            ttk.Button(self.content,text="No account? Click to Sign Up", command=lambda x='Sign Up': self.userForm(x, self.signupfunc)).pack(pady=10)
+        
+
     
     def collectionsScreen(self):
         for i in self.content.winfo_children():
