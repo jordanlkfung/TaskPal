@@ -10,7 +10,7 @@ async def test_get_collection(client, create_test_collection, get_auth_header_fo
     
     assert response.status_code == status.HTTP_200_OK
     print(response.json())
-    assert response.json() == [{'id': 1, 'name': 'test_collection'}]
+    assert response.json() == [{'id': 1, 'name': 'test_collection', 'Number of Tasks': 0}]
 
 
 @pytest.mark.asyncio
