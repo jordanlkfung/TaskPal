@@ -1,7 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from .model import Collection
+from ..task.model import Task
 from .schemas import collectionBase, modifyCollectionSchema
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, func
 from fastapi import HTTPException, status
 class CollectionService():
     async def addCollection(self, collection: collectionBase, userId, db:AsyncSession):
@@ -48,19 +49,14 @@ class CollectionService():
         
     async def getCollections(self, userId:int, db:AsyncSession):
         try:
-            stmt = select(Collection.id, Collection.name).where(Collection.collectionOwner_id == userId)
+            stmt = select(Collection.id, Collection.name, func.count(Task.name).label("Number of Tasks")).join(Task, isouter=True).where(
+                Collection.collectionOwner_id == userId).group_by(Collection.id)
+            print(stmt)
             result = await db.execute(stmt)
-            data = result.fetchall()
-            ret = []
-            for id, name in data:
-                ret.append({
-                    "id": id,
-                    "name":name,
-                })
 
-            return ret
+            return result.mappings().all()
         except Exception as e:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=e)
     
     async def authenticate_collection_owner(self, userId:int, collection_id:int, db:AsyncSession):
         stmt = select(Collection.collectionOwner_id).where(
