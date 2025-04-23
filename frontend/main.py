@@ -64,23 +64,31 @@ class app:
         ttk.Button(self.content, text="Sign Up", command=lambda x="Sign Up": self.userForm(x, self.signupfunc)).place(relx=0.5, rely=0.5, anchor="center")
 
     def userForm(self, buttonText, func):
-        root =self.content
-        for i in self.content.winfo_children():
-            i.destroy()
-        ttk.Label(self.content, text=buttonText).pack(pady=15)
+        root = self.content
+        for widget in root.winfo_children():
+            widget.destroy()
+
+        # Title
+        ttk.Label(root, text=buttonText, font=("Arial", 20, "bold")).place(relx=0.5, rely=0.1, anchor="center")
+
+        ttk.Label(root, text="Email Address:", font=("Arial", 14)).place(relx=0.5, rely=0.22, anchor="center")
         email = tk.StringVar()
-        tk.Label(root, text="Email").pack(pady=10)
-        ttk.Entry(root, textvariable=email, width=30).pack(pady=10)
+        ttk.Entry(root, textvariable=email, width=30).place(relx=0.5, rely=0.28, anchor="center")
+
+        ttk.Label(root, text="Password:", font=("Arial", 14)).place(relx=0.5, rely=0.35, anchor="center")
         password = tk.StringVar()
-        ttk.Label(root, text="Password").pack(pady=10)
-        ttk.Entry(root, textvariable=password, width=30).pack(pady=10)
-        button = ttk.Button(root, text=buttonText, command=lambda x=email.get(), y=password.get():func(x,y))
-        button.pack(pady=10)
+        ttk.Entry(root, textvariable=password, width=30, show="*").place(relx=0.5, rely=0.4, anchor="center")
+
+        ttk.Button(
+            root,
+            text=buttonText,
+            command=lambda x=email.get(), y=password.get(): func(x, y)
+        ).place(relx=0.5, rely=0.5, anchor="center")
+
         if buttonText == 'Sign Up':
-            ttk.Button(self.content,text="Have an Account? Click to Login In", command=lambda x='Login': self.userForm(x, self.loginfunc)).pack(pady=10)
+            ttk.Button(self.content,text="Have an Account? Click to Login In", command=lambda x='Login': self.userForm(x, self.loginfunc)).place(relx=0.5, rely=0.6, anchor="center")
         else:
-            ttk.Button(self.content,text="No account? Click to Sign Up", command=lambda x='Sign Up': self.userForm(x, self.signupfunc)).pack(pady=10)
-        
+            ttk.Button(self.content,text="No account? Click to Sign Up", command=lambda x='Sign Up': self.userForm(x, self.signupfunc)).place(relx=0.5, rely=0.6, anchor="center")
 
     
     def collectionsScreen(self):
