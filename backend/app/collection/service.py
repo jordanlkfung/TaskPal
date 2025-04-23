@@ -7,7 +7,6 @@ from fastapi import HTTPException, status
 class CollectionService():
     async def addCollection(self, collection: collectionBase, userId, db:AsyncSession):
         try:
-            new_collection = collection.model_dump()
             new_collection_instance = Collection(name=collection.name, collectionOwner_id=userId)
             db.add(new_collection_instance)
             #check row changed

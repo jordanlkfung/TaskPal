@@ -17,16 +17,17 @@ class TaskService:
             stmt = stmt.order_by(Task.creation_date)
             result = await db.execute(stmt)
 
-            data = result.fetchall()
+            return result.mappings().all()
+            # data = result.fetchall()
 
-            res = []
-            for id, name, priority, create_date, completed in data:
-                res.append({"id":id,
-                            "name":name,
-                            "priority":priority,
-                            "create_date":create_date,
-                            "completed":completed})
-            return res
+            # res = []
+            # for id, name, priority, create_date, completed in data:
+            #     res.append({"id":id,
+            #                 "name":name,
+            #                 "priority":priority,
+            #                 "create_date":create_date,
+            #                 "completed":completed})
+            # return res
         except Exception as e:
             print(e)
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
