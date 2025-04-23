@@ -37,10 +37,14 @@ class app:
         self.initScreen()
     
     def loginfunc(self, email = "test21@com.com", password = 'testfield1'):
+        print("request to login")
         response = requests.post(f'{BASE_URL}/user/login', json={"email":email, 'password':password})
-        self.token = response.headers['Authorization']
-        if self.token:
+        print("Login response")
+        if response.status_code == 200:
+            self.token = response.headers['Authorization']
             self.collectionsScreen()
+        else:
+            print("Login response code:" + response.status_code)
 
     def signupfunc(self, email, password):
         response = requests.post(f'{BASE_URL}/user/signup', json={"email":email, 'password':password})
@@ -70,24 +74,27 @@ class app:
 
         ttk.Label(root, text=buttonText, font=("Arial", 20, "bold")).place(relx=0.5, rely=0.1, anchor="center")
 
-        ttk.Label(root, text="Email Address:", font=("Arial", 14)).place(relx=0.5, rely=0.22, anchor="center")
+        ttk.Label(root, text="Email Address:", font=("Arial", 14)).place(relx=0.5, rely=0.28, anchor="center")
         email = tk.StringVar()
-        ttk.Entry(root, textvariable=email, width=30).place(relx=0.5, rely=0.28, anchor="center")
+        ttk.Entry(root, textvariable=email, width=30).place(relx=0.5, rely=0.34, anchor="center")
 
-        ttk.Label(root, text="Password:", font=("Arial", 14)).place(relx=0.5, rely=0.35, anchor="center")
+        ttk.Label(root, text="Password:", font=("Arial", 14)).place(relx=0.5, rely=0.43, anchor="center")
         password = tk.StringVar()
-        ttk.Entry(root, textvariable=password, width=30, show="*").place(relx=0.5, rely=0.4, anchor="center")
+        ttk.Entry(root, textvariable=password, width=30, show="*").place(relx=0.5, rely=0.47, anchor="center")
 
         ttk.Button(
             root,
             text=buttonText,
-            command=lambda x=email.get(), y=password.get(): func(x, y)
-        ).place(relx=0.5, rely=0.5, anchor="center")
+            width=25,
+            padding=5,
+            command=func
+            # command=lambda x=email.get(), y=password.get(): func(x, y)
+        ).place(relx=0.5, rely=0.58, anchor="center")
 
         if buttonText == 'Sign Up':
-            ttk.Button(self.content,text="Have an Account? Click to Login In", command=lambda x='Login': self.userForm(x, self.loginfunc)).place(relx=0.5, rely=0.6, anchor="center")
+            ttk.Button(self.content,text="Have an Account? Click to Login In", width=25, padding=5, command=lambda x='Login': self.userForm(x, self.loginfunc)).place(relx=0.5, rely=0.65, anchor="center")
         else:
-            ttk.Button(self.content,text="No account? Click to Sign Up", command=lambda x='Sign Up': self.userForm(x, self.signupfunc)).place(relx=0.5, rely=0.6, anchor="center")
+            ttk.Button(self.content,text="No account? Click to Sign Up", width=25, padding=5, command=lambda x='Sign Up': self.userForm(x, self.signupfunc)).place(relx=0.5, rely=0.65, anchor="center")
 
     
     def collectionsScreen(self):
@@ -101,14 +108,28 @@ class app:
         collections:List[CollectionResponse] = response.json()
         print(collections)
         loading.destroy()
-        
+        ttk.Label(root, text="Collections", font=("Helvetica", 22, "bold")).pack(pady=10)
+        # .place(relx=0.5, rely=0.1, anchor="center")
+
+        tframe = ttk.Frame(self.content)
+        tframe.pack(pady=45)
+
+        ttk.Label(tframe, text="Name").grid(column=0, row=0, padx=(0,15), pady=(0,7))
+        ttk.Label(tframe, text="Actions").grid(column=1, row=0, pady=(0,7))
         for i, collection in enumerate(collections):
-            ttk.Label(self.content, text=collection.name).grid(column=0, row=i)
-            ttk.Button(self.content, text="View").grid(column=1, row=i)
+            print(collection)
+            ttk.Label(tframe, text=collection['name']).grid(column=0, row=i+1, padx=(0,15))
+            actions = ttk.Frame(tframe)
+            actions.grid(column=1, row=i+1)
+            ttk.Button(actions, text="View", command= lambda x=collection['id']: self.taskScreen(x)).grid(column=0, row=0)
+            ttk.Button(actions, text="Delete").grid(column=1, row=0)
+            
     
-    def taskScreen(self):
-        pass
-    
+    def taskScreen(self, collectionId):
+        response = requests.get(f'{BASE_URL}/collection/task/{collectionId}',
+                                 headers={"Authorization":self.token})
+        
+        tasks = response.json()
     def createScreen():
         pass
             
