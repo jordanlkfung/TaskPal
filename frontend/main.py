@@ -59,16 +59,15 @@ class app:
         # ttk.Button(self.content, text="Sign Up", command=lambda x= "Sign Up": self.userForm(x, self.signupfunc)).pack(pady=10, anchor='center')
 
         
-        ttk.Label(self.content, text="Welcome To TaskPal", font=title_font).place(relx=0.5, rely=0.3, anchor="center", )
-        ttk.Button(self.content, text="Login", command=toLoginForm).place(relx=0.5, rely=0.4, anchor="center")
-        ttk.Button(self.content, text="Sign Up", command=lambda x="Sign Up": self.userForm(x, self.signupfunc)).place(relx=0.5, rely=0.5, anchor="center")
+        ttk.Label(self.content, text="Welcome To TaskPal", font=title_font).place(relx=0.5, rely=0.3, anchor="center")
+        ttk.Button(self.content, text="Login", command=toLoginForm, padding=5, width=25).place(relx=0.5, rely=0.4, anchor="center")
+        ttk.Button(self.content, text="Sign Up", padding=5, width=25, command=lambda x="Sign Up": self.userForm(x, self.signupfunc)).place(relx=0.5, rely=0.5, anchor="center")
 
     def userForm(self, buttonText, func):
         root = self.content
         for widget in root.winfo_children():
             widget.destroy()
 
-        # Title
         ttk.Label(root, text=buttonText, font=("Arial", 20, "bold")).place(relx=0.5, rely=0.1, anchor="center")
 
         ttk.Label(root, text="Email Address:", font=("Arial", 14)).place(relx=0.5, rely=0.22, anchor="center")
