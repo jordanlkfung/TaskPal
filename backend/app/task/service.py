@@ -4,7 +4,7 @@ from .model import Task, TaskPriority
 from .schemas import addTaskSchema, updateTaskSchema
 from fastapi import HTTPException, status
 from datetime import datetime
-
+from app.collection.model import Collection
 
 class TaskService:
     async def getTasks(self, collection_Id:int, db:AsyncSession):
@@ -114,3 +114,37 @@ class TaskService:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     
+    async def collectionExists(self, collectionId,db:AsyncSession):
+        try:
+            stmt = select(Collection.collectionOwner_id).where(Collection.id == collectionId)
+
+            result = await db.execute(stmt)
+
+            data = result.scalar_one_or_none()
+
+            if data:
+                return data
+            
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Collection not found")
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        
+    async def task_belongs_to_user(self, taskId, userId, db:AsyncSession):
+        try:
+            stmt = select(Collection.collectionOwner_id).join(Task).where(Task.id == taskId)
+
+            result = await db.execute(stmt)
+            data = result.scalar_one_or_none()
+
+            if not data:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+            
+            if data == userId:
+                return
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

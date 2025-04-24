@@ -123,8 +123,8 @@ async def create_test_collection(create_test_user) ->Collection:
     return collection_instance
 
 @pytest_asyncio.fixture()
-async def create_test_task(create_test_collection:Collection):
-    task_instance = Task(collection_id = create_test_collection.id, name = "test_task")
+async def create_test_task(create_test_collection:Collection) ->Task:
+    task_instance = Task(collection_id = create_test_collection.id, name = "test_task", priority="NONE")
     async with sessionmanager.session() as session:
         session.add(task_instance)
         await session.commit()
