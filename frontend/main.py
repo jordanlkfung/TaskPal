@@ -34,7 +34,7 @@ class app:
         self.nav = ttk.Frame(self.root)
         self.content = ttk.Frame(self.root)
         self.content.place(relwidth=1, relheight=1)
-        self.initScreen()
+        self.taskScreen(1,'Collection')
     
     def loginfunc(self, email = "test21@com.com", password = 'testfield1'):
         print("request to login")
@@ -125,7 +125,7 @@ class app:
             actions = ttk.Frame(self.content)
             actions.grid(column=2, row=i+2, sticky="ew", columnspan=1)
             
-            ttk.Button(actions, text="View", command=lambda x=collection['id']: self.taskScreen(x)).grid(column=0, row=0, padx=(0, 5))
+            ttk.Button(actions, text="View", command=lambda x=collection['id'], y=collection['name']: self.taskScreen(x, y)).grid(column=0, row=0, padx=(0, 5))
             
             ttk.Button(actions, text="Delete", command=lambda x=collection['id']: x).grid(column=1, row=0, padx=(5, 0))
             
@@ -135,9 +135,49 @@ class app:
         response = requests.get(f'{BASE_URL}/collection/task/{collectionId}',
                                  headers={"Authorization":self.token})
         
-        tasks = response.json()
+        tasks = [{
+            "id":1,
+            "name":"task1",
+            "priority":"NONE",
+            "creation_date":"03/23/11",
+            'completed': False
+        }]
+        ttk.Label(self.content, text=collection_name, font=("Helvetica", 22, "bold")).grid(row=0, column=2, pady=15)
 
-        ttk.Label(self.content, text=collection_name, font=("Helvetica", 22, "bold")).place(relx=.5, rely=.25, anchor='center')
+
+        self.content.grid_columnconfigure(0, weight=1, uniform="equal")
+        self.content.grid_columnconfigure(1, weight=1, uniform="equal")
+        self.content.grid_columnconfigure(2, weight=1, uniform="equal")
+        self.content.grid_columnconfigure(3, weight=1, uniform="equal")
+        self.content.grid_columnconfigure(4, weight=1, uniform="equal")
+
+        ttk.Label(self.content, text="Task Name").grid(column=0, row=1, padx=(5, 20), pady=(0, 7), sticky="ew", columnspan=1)
+        ttk.Label(self.content, text="Priority").grid(column=1, row=1, pady=(0, 7), sticky="ew", columnspan=1)
+        ttk.Label(self.content, text="Creation date").grid(column=2, row=1, pady=(0, 7), sticky="ew", columnspan=1)
+        ttk.Label(self.content, text="Status").grid(column=3, row=1, pady=(0, 7), sticky="ew", columnspan=1)
+        
+        # tempframe = ttk.Frame(self.content)
+        # tempframe.grid(column=3, row=1, pady=(0, 7), sticky="ew", columnspan=1)
+        # ttk.Label(tempframe, text="Actions").grid()
+        def markComplete():
+            response = requests.post()
+
+        for i, task in enumerate(tasks):
+            ttk.Label(self.content, text=task['name']).grid(column=0, row=i+2, padx=(5, 20), sticky="ew", columnspan=1)
+            ttk.Label(self.content, text=task['priority']).grid(column=1, row=i+2, sticky="ew", columnspan=1)
+            ttk.Label(self.content, text=task['creation_date']).grid(column=2, row=i+2, sticky="ew", columnspan=1)
+            text = "Mark Completed"
+            command = markComplete
+            if task['completed']:
+                command = lambda x: x
+                text = 'Completed'
+            ttk.Button(self.content, text=text, command=lambda x= task['id']: command(x)).grid(column=3, row=i+2, sticky="ew", columnspan=1)
+            
+            
+            ttk.Button(self.content, text="Delete", command=lambda x=task['id']: x).grid(column=4, row=i+2, columnspan=1)
+            
+        ttk.Button(self.content, text="Create New Collection", command=self.createCollectionScreen).place(relx=.5, rely=.9, anchor='center')
+
         
 
     def createCollectionScreen(self):
@@ -160,7 +200,7 @@ class app:
         ttk.Entry(self.content, textvariable=collection_name).place(relx=.5, rely=.47, relheight=.07, anchor='center')
 
         ttk.Button(self.content, text="Create", width=15, command=createCollection).place(relx=.5, rely=.6, anchor='center')
-
+    
             
 app(root)
 sv_ttk.use_light_theme()
