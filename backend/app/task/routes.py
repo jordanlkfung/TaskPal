@@ -27,9 +27,7 @@ async def addTask(newTask: addTaskSchema, db: AsyncSession = Depends(get_db), us
 
 @task_router.patch('/', status_code=status.HTTP_204_NO_CONTENT)
 async def updateTask(task:updateTaskSchema, db:AsyncSession = Depends(get_db), userId = Depends(get_user_from_token)):
-    user = await task_service.collectionExists(task.collection_id,db)
-    if user != userId:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    await task_service.task_belongs_to_user(id, userId, db)
     await task_service.updateTask(task, db)
 
 @task_router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

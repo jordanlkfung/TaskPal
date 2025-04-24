@@ -102,7 +102,6 @@ class TaskService:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
             
             for attribute, value in updated_task.model_dump().items():
-                print(attribute)
                 setattr(task, attribute, value)
             await db.commit()
 
