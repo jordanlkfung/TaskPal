@@ -34,7 +34,8 @@ class app:
         self.nav = ttk.Frame(self.root)
         self.content = ttk.Frame(self.root)
         self.content.place(relwidth=1, relheight=1)
-        self.taskScreen(1,'Collection')
+        # self.taskScreen(1,'Collection')
+        self.initScreen()
     
     def loginfunc(self, email = "test21@com.com", password = 'testfield1'):
         print("request to login")
@@ -201,7 +202,13 @@ class app:
 
         ttk.Button(self.content, text="Create", width=15, command=createCollection).place(relx=.5, rely=.6, anchor='center')
     
-            
+
+    def createTaskScreen(self):
+        #NEED
+        #DATE
+        #PRIORITY(DROP DOWN)
+        #NAME
+        pass       
 app(root)
 sv_ttk.use_light_theme()
 
