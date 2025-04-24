@@ -1,10 +1,11 @@
 from datetime import datetime
 import enum
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Boolean
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from ..collection.model import Collection
 from app.database import Base
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from app.collection.model import Collection
 
 class TaskPriority(enum.Enum):
     HIGH = 3
