@@ -85,6 +85,13 @@ def get_test_user():
     }
 
 @pytest_asyncio.fixture()
+def get_second_test_user():
+    return{
+        "email":"test2@test.com",
+        "password":"test_pwd"
+    }
+
+@pytest_asyncio.fixture()
 async def create_test_user(get_test_user):
     hashedpwd = hash(get_test_user['password'])
     user_instance = User(email = get_test_user['email'], password = hashedpwd)
@@ -95,6 +102,16 @@ async def create_test_user(get_test_user):
 
     return user_instance.id
 
+@pytest_asyncio.fixture()
+async def create_second_test_user(get_second_test_user):
+    hashedpwd = hash(get_second_test_user['password'])
+    user_instance = User(email = get_second_test_user['email'], password = hashedpwd)
+    async with sessionmanager.session() as session:
+        session.add(user_instance)
+        await session.commit()
+        await session.refresh(user_instance)
+
+    return user_instance.id
 
 @pytest_asyncio.fixture()
 async def create_test_collection(create_test_user) ->Collection:

@@ -9,8 +9,8 @@ task_router = APIRouter()
 task_service = TaskService()
 
 @task_router.get('/{collection_id}', status_code=status.HTTP_200_OK)
-async def getTasks(collection_id:int, db: AsyncSession = Depends(get_db), order:str="none"):
-    return await task_service.getTasks(collection_id, db, order)
+async def getTasks(collection_id:int, db: AsyncSession = Depends(get_db)):
+    return await task_service.getTasks(collection_id, db)
 
 @task_router.post('/add', status_code=status.HTTP_201_CREATED)
 async def addTask(newTask: addTaskSchema, db: AsyncSession = Depends(get_db)):

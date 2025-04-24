@@ -7,13 +7,13 @@ from datetime import datetime
 
 
 class TaskService:
-    async def getTasks(self, collection_Id:int, db:AsyncSession, order:str):
+    async def getTasks(self, collection_Id:int, db:AsyncSession):
+        '''
+        Gets tasks, will order them by if they're completed then by creation date
+        '''
         try:
             stmt = select(Task.id, Task.name,Task.priority, Task.creation_date, Task.completed).where(Task.collection_id == collection_Id).order_by(Task.completed)
 
-            if order == 'priority':
-                stmt = stmt.order_by(Task.priority)
-                
             stmt = stmt.order_by(Task.creation_date)
             result = await db.execute(stmt)
 

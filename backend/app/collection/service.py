@@ -81,7 +81,7 @@ class CollectionService():
             data = result.one_or_none()
             
             if not data:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Collection not found")
         except HTTPException as e:
             raise e
         except Exception as e:
