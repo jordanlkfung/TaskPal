@@ -1,8 +1,8 @@
 from sqlalchemy import Integer, Column, String, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.database import Base
-# from app.users.model import User
-# from app.task.model import Task
+from app.users.model import User
+from app.task.model import Task
 from typing import List
 
 class Collection(Base):
