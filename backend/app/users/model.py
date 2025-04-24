@@ -1,8 +1,10 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 from sqlalchemy import Column, String, Integer, DateTime
 from sqlalchemy.orm import relationship
 import datetime
 from app.database import Base
+if TYPE_CHECKING:
+    from app.collection.model import Collection
 
 class User(Base):
     __tablename__ = "users"

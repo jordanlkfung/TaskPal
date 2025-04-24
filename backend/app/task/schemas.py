@@ -12,6 +12,7 @@ class TaskBase(BaseModel):
 class addTaskSchema(TaskBase):
     pass
 
-class updateTaskSchema(TaskBase):
+class updateTaskSchema(BaseModel):
     id:int
-    pass
+    name:str
+    priority:TaskPriority = TaskPriority.NONE

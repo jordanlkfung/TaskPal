@@ -45,7 +45,6 @@ class UserService:
     # Sign-up function
     async def signUp(self, user: UserSignUpSchema, db: AsyncSession):
         '''Sign Up service, raises HTTP exception if user already exists, otherwise creates user'''
-        print(user)
         # Check if user email already exists
         stmt = select(User).where(User.email == user.email)
         result = await db.execute(stmt)
@@ -70,6 +69,3 @@ class UserService:
         res = setHeaders(UserHeaders(id=user_instance.id, email=user_instance.email), success_message="Sign up successful")
         res.status_code = status.HTTP_201_CREATED
         return res
-
-    async def logout(self, db: Session):
-        pass 
