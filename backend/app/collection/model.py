@@ -1,8 +1,8 @@
 from sqlalchemy import Integer, Column, String, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.database import Base
-from app.users.model import User
-from app.task.model import Task
+# from app.users.model import User
+# from app.task.model import Task
 from typing import List
 
 class Collection(Base):
@@ -16,5 +16,5 @@ class Collection(Base):
     id:Mapped[int] = mapped_column(primary_key=True)
     name:Mapped[str]
     collectionOwner_id:Mapped[int] = mapped_column(ForeignKey('users.id'))
-    collectionOwner:Mapped['User'] = relationship(back_populates='collection')
-    task:Mapped[List['Task']] = relationship(back_populates='collection')
+    collectionOwner:Mapped['User'] = relationship(back_populates='collection') # type: ignore
+    task:Mapped[List['Task']] = relationship(back_populates='collection') # type: ignore
