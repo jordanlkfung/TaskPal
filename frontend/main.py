@@ -36,7 +36,7 @@ class app:
         self.content.place(relwidth=1, relheight=1)
         # self.taskScreen(1,'Collection')
         self.initScreen()
-    
+
     def loginfunc(self, email = "test21@com.com", password = 'testfield1'):
         print("request to login")
         response = requests.post(f'{BASE_URL}/user/login', json={"email":email, 'password':password})
@@ -203,12 +203,23 @@ class app:
         ttk.Button(self.content, text="Create", width=15, command=createCollection).place(relx=.5, rely=.6, anchor='center')
     
 
-    def createTaskScreen(self):
-        #NEED
-        #DATE
-        #PRIORITY(DROP DOWN)
-        #NAME
-        pass       
+    def createTaskScreen(self, collection_id):
+        for i in self.content.winfo_children():
+            i.destroy()
+        
+        def createTaskReq():
+            response = requests.post(f'{BASE_URL}/task/add',
+                                     headers={"Authorization":self.token},
+                                     json={"collection_id":collection_id,
+                                           "name":name,
+                                           "priority":priority})
+            
+        name = tk.StringVar()
+        priority = tk.StringVar()
+        ttk.Label(self.content, text='Task name').pack()
+        ttk.Entry(self.content, textvariable=name).pack()
+        ttk.Combobox(self.content, textvariable=priority, state='readonly', values=['NONE', 'LOW', 'MEDIUM','HIGH']).pack()
+        ttk.Button(self.content, text="Add Task").pack()
 app(root)
 sv_ttk.use_light_theme()
 
