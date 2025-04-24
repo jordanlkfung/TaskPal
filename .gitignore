@@ -5,3 +5,6 @@ __pycache__/
 .frontendenv
 .taskpalvenv
 .idea
+.pytest_cache/
+coverage_re/
+.coverage

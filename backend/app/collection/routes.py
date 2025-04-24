@@ -8,7 +8,6 @@ from ..utils.authentication import get_user_from_token
 collection_router = APIRouter()
 collection_service = CollectionService()
 
-# @collection_router.get('/get/{userId}')
 @collection_router.get('/get')
 async def getUserCollections(userId:int = Depends(get_user_from_token), db:AsyncSession = Depends(get_db)):
     return await collection_service.getCollections(userId, db)

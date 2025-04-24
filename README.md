@@ -1,5 +1,6 @@
 # TaskPal
 #### To Run Backend
+<<<<<<< Updated upstream
 #### Navigate to ```/backend```
 #### Run in terminal
 ```
@@ -35,3 +36,15 @@ TaskPal uses token-based authentication. You need to log in with your credential
   }
 - **Responses**:
 200 - will include authentication token in the header, this token will be used in future requests to provide userid
+=======
+##### Navigate to main directory
+```
+fastapi dev main.py
+```
+## ALTERNATIVE
+#### Navigate to ```backend```
+#### Run
+```
+fastapi dev app/
+```
+>>>>>>> Stashed changes
