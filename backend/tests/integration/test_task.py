@@ -100,6 +100,22 @@ async def test_update_task_invalid_priority(client, create_test_task, get_auth_h
                                     "id": create_test_task.id
                                     })
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.json() == {
+            "detail": [
+                {
+                    "type": "enum",
+                    "loc": [
+                        "body",
+                        "priority"
+                    ],
+                    "msg": "Input should be 3, 2, 1 or 0",
+                    "input": 10,
+                    "ctx": {
+                        "expected": "3, 2, 1 or 0"
+                    }
+                }
+            ]
+        }
 
 
 @pytest.mark.asyncio
@@ -108,10 +124,12 @@ async def test_update_task_invalid_task_id(client, create_test_task, get_auth_he
                                   headers = {"Authorization":get_auth_header_for_user},
                                   json={
                                     "name": "string",
-                                    "priority": 10,
-                                    "id": 100
+                                    "priority": 1,
+                                    "id": 113
                                     })
     assert response.status_code == status.HTTP_404_NOT_FOUND 
+    print(response.json())
+
 @pytest.mark.asyncio
 async def test_update_task_unauthorized_user(client,create_test_task, get_auth_header_for_second_user):
     response = await client.patch('task/',
@@ -122,6 +140,7 @@ async def test_update_task_unauthorized_user(client,create_test_task, get_auth_h
                                     "id": create_test_task.id
                                     })
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
 
 @pytest.mark.asyncio
 async def test_update_task_invalid_token(client, get_invalid_auth_heater):
