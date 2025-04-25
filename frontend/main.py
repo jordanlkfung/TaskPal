@@ -4,9 +4,8 @@ from tkinter import ttk, font
 import os
 from dotenv import load_dotenv
 import requests
-from responses import CollectionResponse
 from typing import List
-
+import re
 import sv_ttk
 
 load_dotenv()
@@ -39,18 +38,21 @@ class app:
     def loginfunc(self, email = "test21@com.com", password = 'testfield1'):
         print("request to login")
         response = requests.post(f'{BASE_URL}/user/login', json={"email":email, 'password':password})
-        print("Login response")
         if response.status_code == 200:
             self.token = response.headers['Authorization']
-            self.collectionsScreen()
+            # self.collectionsScreen()
         else:
             print(f"Login response code: {response.status_code}")
+            # error_func(response.status_code, response['detail'])
+        return response.status_code
 
     def signupfunc(self, email, password):
         response = requests.post(f'{BASE_URL}/user/signup', json={"email":email, 'password':password})
         self.token = response.headers['Authorization']
-        if self.token:
-            self.collectionsScreen()
+        if response.status_code == 201:
+            self.token = response.headers['Authorization']
+            # self.collectionsScreen()
+        return response.status_code
 
     def initScreen(self):
         def toLoginForm():
@@ -69,6 +71,33 @@ class app:
         for widget in root.winfo_children():
             widget.destroy()
 
+        error_msg = None
+        def setErrorMsg(code, message):
+            error_msg = ttk.Label(self.content, text=message, foreground='red')
+            error_msg.place(relx=.5, rely=.73, anchor='center')
+        
+        def removeErrorMsg():
+            if error_msg:
+                error_msg.destroy()
+        
+        def sumbit():
+            removeErrorMsg()
+            user_email = email.get()
+            user_password = password.get()
+            
+            # if not user_email or not user_password:
+            #     setErrorMsg(0, "Missing Email or Password")
+            #     return
+
+            # res = func(user_email, user_password)
+            res = func()
+            if res == 200 or res == 201:
+                self.collectionsScreen()
+            elif res >=400 and res <500:
+                setErrorMsg(0, "Invalid Email or Password")
+            else:
+                setErrorMsg(0,"Server Error, please try again")
+
         ttk.Label(root, text=buttonText, font=("Arial", 20, "bold")).place(relx=0.5, rely=0.1, anchor="center")
 
         ttk.Label(root, text="Email Address:", font=("Arial", 14)).place(relx=0.5, rely=0.28, anchor="center")
@@ -84,8 +113,7 @@ class app:
             text=buttonText,
             width=25,
             padding=5,
-            command=func
-            # command=lambda x=email.get(), y=password.get(): func(x, y)
+            command=sumbit
         ).place(relx=0.5, rely=0.58, anchor="center")
 
         if buttonText == 'Sign Up':
@@ -95,43 +123,47 @@ class app:
 
     
     def collectionsScreen(self):
+        def logout_func():
+            self.token = None
+            self.initScreen()
         for i in self.content.winfo_children():
             i.destroy()
-        loading = ttk.Label(self.content, text="Loading")
-        loading.pack()
+        loading = ttk.Label(self.content, text="Loading..", font=("Helvetica", 22, "bold"))
+        loading.place(relx=.5, rely=.5, anchor="center")
 
         response = requests.get(f'{BASE_URL}/collection/get',
                                    headers={"Authorization":self.token})
         collections = response.json()
-
         loading.destroy()
+        for i in range(3):
+            self.content.grid_columnconfigure(i, weight=1)
         ttk.Label(self.content, text="My Collections", font=("Helvetica", 22, "bold")).grid(row=0, column=1, pady=15)
 
+        ttk.Button(self.content, text="Logout", command=logout_func).place(relx=.99, rely=.01, anchor='ne')
 
-        self.content.grid_columnconfigure(0, weight=1, uniform="equal")
-        self.content.grid_columnconfigure(1, weight=1, uniform="equal")
-        self.content.grid_columnconfigure(2, weight=1, uniform="equal")
 
-        ttk.Label(self.content, text="Name").grid(column=0, row=1, padx=(5, 20), pady=(0, 7), sticky="ew", columnspan=1)
-        ttk.Label(self.content, text="Number of Tasks").grid(column=1, row=1, pady=(0, 7), sticky="ew", columnspan=1)
-        tempframe = ttk.Frame(self.content)
-        tempframe.grid(column=2, row=1, pady=(0, 7), sticky="ew", columnspan=1)
-        ttk.Label(tempframe, text="Actions").grid()
+        ttk.Label(self.content, text="Name", font=("Helvetica", 18, "bold")).grid(column=0, row=1, padx=(5, 20), pady=(0, 7),  columnspan=1)
+        ttk.Label(self.content, text="Number of Tasks", font=("Helvetica", 18, "bold")).grid(column=1, row=1, pady=(0, 7), columnspan=1)
+        # tempframe = ttk.Frame(self.content)
+        # tempframe.grid(column=2, row=1, pady=(0, 7), sticky="ew", columnspan=1)
+        ttk.Label(self.content, text="Actions", font=("Helvetica", 18, "bold")).grid(row=1, columnspan=1, column=2)
 
         for i, collection in enumerate(collections):
-            ttk.Label(self.content, text=collection['name']).grid(column=0, row=i+2, padx=(5, 20), sticky="ew", columnspan=1)
-            ttk.Label(self.content, text=collection['Number of Tasks']).grid(column=1, row=i+2, sticky="ew", columnspan=1)
+            ttk.Label(self.content, text=collection['name']).grid(column=0, row=i+2, padx=(5, 20),  columnspan=1)
+            ttk.Label(self.content, text=collection['Number of Tasks']).grid(column=1, row=i+2, columnspan=1)
             
             actions = ttk.Frame(self.content)
-            actions.grid(column=2, row=i+2, sticky="ew", columnspan=1)
+            actions.grid(column=2, row=i+2, columnspan=1)
+            actions.grid_columnconfigure(0, weight=1)
+            actions.grid_columnconfigure(1, weight=1)
+            ttk.Button(actions, text="View", command=lambda x=collection['id'], y=collection['name']: self.taskScreen(x, y)).grid(column=0, row=0, padx=(0, 5), columnspan=1)
             
-            ttk.Button(actions, text="View", command=lambda x=collection['id'], y=collection['name']: self.taskScreen(x, y)).grid(column=0, row=0, padx=(0, 5))
-            
-            ttk.Button(actions, text="Delete", command=lambda x=collection['id']: x).grid(column=1, row=0, padx=(5, 0))
+            ttk.Button(actions, text="Delete", command=lambda x=collection['id']: x).grid(column=1, row=0, padx=(5, 0), columnspan=1)
             
         ttk.Button(self.content, text="Create New Collection", command=self.createCollectionScreen).place(relx=.5, rely=.9, anchor='center')
 
     def taskScreen(self, collectionId, collection_name):
+        date = re.compile(r'(\d{4})-(\d{2})-(\d{2})*')
 
         for i in self.content.winfo_children():
             i.destroy()
@@ -145,7 +177,6 @@ class app:
         #     'completed': False
         # }]
         tasks = response.json()
-        # print(tasks)
         ttk.Label(self.content, text=collection_name, font=("Helvetica", 22, "bold")).grid(row=0, column=2, pady=15)
 
 
@@ -155,35 +186,44 @@ class app:
         self.content.grid_columnconfigure(3, weight=1, uniform="equal")
         self.content.grid_columnconfigure(4, weight=1, uniform="equal")
 
-        ttk.Label(self.content, text="Task Name").grid(column=0, row=1, padx=(5, 20), pady=(0, 7), sticky="ew", columnspan=1)
-        ttk.Label(self.content, text="Priority").grid(column=1, row=1, pady=(0, 7), sticky="ew", columnspan=1)
-        ttk.Label(self.content, text="Creation date").grid(column=2, row=1, pady=(0, 7), sticky="ew", columnspan=1)
-        ttk.Label(self.content, text="Status").grid(column=3, row=1, pady=(0, 7), sticky="ew", columnspan=1)
+        ttk.Label(self.content, text="Task Name").grid(column=0, row=1, padx=(5, 20), pady=(0, 7),  columnspan=1)
+        ttk.Label(self.content, text="Priority").grid(column=1, row=1, pady=(0, 7),  columnspan=1)
+        ttk.Label(self.content, text="Creation date").grid(column=2, row=1, pady=(0, 7))
+        ttk.Label(self.content, text="Status").grid(column=3, row=1, pady=(0, 7), columnspan=1)
         
         def markComplete(task, index):
             print("request to complete")
-            # response = requests.patch(f"{BASE_URL}/task/",headers={"Authorization": self.token}, json={"name":task['name'], "id":task['id'], 'completed':True, 'priority':task['priority']})
-            response = requests.patch(f"{BASE_URL}/task/complete/{task['id']}",headers={"Authorization": self.token})
+            response = requests.patch(f"{BASE_URL}/task/",headers={"Authorization": self.token}, json={"name":task['name'], "id":task['id'], 'completed':not task['completed'], 'priority':task['priority']})
+            # response = requests.patch(f"{BASE_URL}/task/complete/{task['id']}",headers={"Authorization": self.token})
             print(f"{response.status_code} code received")
             if response.status_code == 204:
-                tasks[i]['completed'] = True
-                self.content.update()
-                # self.taskScreen(collectionId, collection_name)
+                # tasks[i]['completed'] = True
+                # self.content.update()
+                self.taskScreen(collectionId, collection_name)
             else:
                 print("error")
                 print(response.json())
-
+        def deleteTask(id):
+            response = requests.delete(f"{BASE_URL}/task/{id}",
+                                       headers={"Authorization":self.token})
+            if response.status_code == 204:
+                self.taskScreen(collectionId, collection_name)
+            else:
+                print("error")
+                print(response.json())
         for i, task in enumerate(tasks):
-            ttk.Label(self.content, text=task['name']).grid(column=0, row=i+2, padx=(5, 20), sticky="ew", columnspan=1)
-            ttk.Label(self.content, text=task['priority']).grid(column=1, row=i+2, sticky="ew", columnspan=1)
-            ttk.Label(self.content, text=task['creation_date']).grid(column=2, row=i+2, sticky="ew", columnspan=1)
+            match = re.match(date, task['creation_date'])
+            year, month, day = match[1], match[2], match[3] 
+            ttk.Label(self.content, text=task['name']).grid(column=0, row=i+2, padx=(5, 20), columnspan=1)
+            ttk.Label(self.content, text=task['priority']).grid(column=1, row=i+2)
+            ttk.Label(self.content, text=f'{month}/{day}/{year}').grid(column=2, row=i+2)
             text = "Mark Completed"
             if task['completed']:
                 text = 'Completed'
-            ttk.Button(self.content, text=text, command=lambda x= task: markComplete(x, i)).grid(column=3, row=i+2, sticky="ew", columnspan=1)
+            ttk.Button(self.content, text=text, command=lambda x= task: markComplete(x, i)).grid(column=3, row=i+2, columnspan=1, sticky='nsew', padx=5)
             
             
-            ttk.Button(self.content, text="Delete", command=lambda x=task['id']: x).grid(column=4, row=i+2, columnspan=1)
+            ttk.Button(self.content, text="Delete", command=lambda x=task['id']: deleteTask(x)).grid(column=4, row=i+2, padx=(10,10), sticky='nsew')
             
         ttk.Button(self.content, text="Add Task", command=lambda x=collectionId, y=collection_name: self.createTaskScreen(x, y)).place(relx=.5, rely=.9, anchor='center')
 
