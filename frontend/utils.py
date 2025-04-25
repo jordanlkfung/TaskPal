@@ -21,3 +21,6 @@ def datetime_to_mdy(str) -> str:
     year, month, day = match[1], match[2], match[3]
     return f'{month}/{day}/{year}'
 
+email_pattern = re.compile(r'\w+@\w+.[A-Za-z]{3}')
+def valid_email(str) -> bool:
+    return True

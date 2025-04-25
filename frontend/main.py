@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import requests
 from typing import List
 import sv_ttk
-from utils import get_priority_str, get_priority_val, datetime_to_mdy, str_to_val
+from utils import get_priority_str, get_priority_val, datetime_to_mdy, str_to_val, valid_email
 
 load_dotenv()
 prod = False
@@ -72,7 +72,7 @@ class app:
             widget.destroy()
 
         error_msg = None
-        def setErrorMsg(code, message):
+        def setErrorMsg(message):
             error_msg = ttk.Label(self.content, text=message, foreground='red')
             error_msg.place(relx=.5, rely=.73, anchor='center')
         
@@ -86,7 +86,7 @@ class app:
             user_password = password.get()
             
             # if not user_email or not user_password:
-            #     setErrorMsg(0, "Missing Email or Password")
+            #     setErrorMsg("Missing Email or Password")
             #     return
 
             # res = func(user_email, user_password)
@@ -94,9 +94,15 @@ class app:
             if res == 200 or res == 201:
                 self.collectionsScreen()
             elif res >=400 and res <500:
-                setErrorMsg(0, "Invalid Email or Password")
+                setErrorMsg("Invalid Email or Password")
             else:
-                setErrorMsg(0,"Server Error, please try again")
+                setErrorMsg("Server Error, please try again")
+
+        def checkEmail(input):
+            if valid_email(input):
+                removeErrorMsg()
+            else:
+                setErrorMsg("Invalid Email Format")
 
         ttk.Label(root, text=buttonText, font=("Arial", 20, "bold")).place(relx=0.5, rely=0.1, anchor="center")
 
@@ -285,17 +291,21 @@ class app:
             i.destroy()
         error_msg = None
         def remove_error_msg():
+            nonlocal error_msg
             if error_msg:
                 error_msg.destroy()
+                error_msg = None
         def set_error_msg(message):
+            nonlocal error_msg
             error_msg = ttk.Label(self.content, text= message, foreground='red')
-            error_msg.place(relx=.5, rely=.5, anchor='center')
+            error_msg.place(relx=.5, rely=.55, anchor='center')
 
         def update():
-            if collection_name.get():
-                remove_error_msg()
+            remove_error_msg()
+            new_name = collection_name.get()
+            if new_name:
                 print("request to add collection")
-                response = requests.patch(f'{BASE_URL}/collection/', json={"name":collection_name.get(), "id":collection_id}, headers={"Authorization":self.token})
+                response = requests.patch(f'{BASE_URL}/collection/', json={"name":new_name, "id":collection_id}, headers={"Authorization":self.token})
 
                 new_collection = response.json()
                 print(f'{response.status_code} received')
@@ -305,6 +315,8 @@ class app:
                     set_error_msg("Invalid Name")
                 else:
                     set_error_msg("Server Error, Please try again")
+            else:
+                set_error_msg("Collection Has to Have a Name")
                 
         for i in self.content.winfo_children():
             i.destroy()
@@ -313,13 +325,32 @@ class app:
         ttk.Label(self.content, text="New Name", font=("Helvetica", 14)).place(relx=.5, rely=.41, anchor='center')
         collection_name = tk.StringVar()
 
-        ttk.Entry(self.content, textvariable=collection_name).place(relx=.5, rely=.47, relheight=.07, anchor='center')
+        name_entry = ttk.Entry(self.content, textvariable=collection_name)
+        name_entry.place(relx=.5, rely=.47, relheight=.07, anchor='center')
+        name_entry.bind('<Key>', lambda x: remove_error_msg())
+    
 
         ttk.Button(self.content, text="Cancel", width=15, command=self.collectionsScreen).place(relx=.5, rely=.6, anchor='center')
         ttk.Button(self.content, text="Update", width=15, command=update).place(relx=.5, rely=.68, anchor='center')
 
-    def updateTaskScreen():
-        pass
+    def updateTaskScreen(self, task):
+        for i in self.content.winfo_children():
+            i.destroy()
+
+        error_msg = None
+        def remove_error():
+            if error_msg:
+                error_msg.destroy()
+                error_msg = None
+        def set_error_msg(message):
+            error_msg = ttk.Label(self.content, foreground='red', text=message)
+            error_msg.place(relx=.5)
+            
+        def updateTask():
+            response = requests.patch()
+
+
+
 app(root)
 sv_ttk.use_light_theme()
 
