@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from .model import TaskPriority
-from datetime import datetime
 class TaskBase(BaseModel):
     name:str
     priority:TaskPriority = TaskPriority.NONE

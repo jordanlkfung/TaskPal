@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, status, Request, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from .service import TaskService
 from .schemas import addTaskSchema, updateTaskSchema
-from .model import TaskPriority
 from app.utils.authentication import get_user_from_token
 
 task_router = APIRouter()
@@ -35,9 +34,3 @@ async def deleteTask(id: int, db: AsyncSession = Depends(get_db), userId = Depen
     await task_service.task_belongs_to_user(id, userId, db)
     await task_service.deleteTask(id, db)
 
-#keep or not keep, patch gives same functionality
-#keep for now, allows update of task without sending anything in body
-@task_router.patch("/complete/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def completeTask(id: int, db:AsyncSession = Depends(get_db), userId = Depends(get_user_from_token)):
-    await task_service.task_belongs_to_user(id, userId, db)
-    await task_service.completeTask(id, db)

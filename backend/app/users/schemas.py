@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 class UserBase(BaseModel):
-    email: str
+    email: EmailStr
     password:str
 
 class User(UserBase):
@@ -13,7 +13,7 @@ class UserLoginSchema(UserBase):
 
 class UserSignUpSchema(UserBase):
     pass
-    # confirm_password:str
+
 class UserHeaders(BaseModel):
     id:int
     email:str

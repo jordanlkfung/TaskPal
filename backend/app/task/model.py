@@ -15,14 +15,6 @@ class TaskPriority(enum.Enum):
 
 class Task(Base):
     __tablename__ = "task"
-    # id = Column(Integer, primary_key=True)
-    # name = Column(String, nullable=False)
-    # priority = Column(Enum(TaskPriority))
-    # creation_date = Column(DateTime, default=datetime.now)
-    # completed = Column(Boolean, default=False)
-    # completed_date = Column(DateTime)
-    # collection_id = Column(Integer, ForeignKey('collection.id'))
-    # collection = relationship('Collection', back_populates='task')
 
     id:Mapped[int] = mapped_column(primary_key=True)
     name:Mapped[str]
