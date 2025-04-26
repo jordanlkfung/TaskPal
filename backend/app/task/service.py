@@ -48,29 +48,7 @@ class TaskService:
         except Exception as e:
             print(e)
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    # async def completeTask(self, id:int, db:AsyncSession):
-    #     try:
-    #         stmt = select(Task).where(Task.id == id)
-
-    #         result = await db.execute(stmt)
-    #         task = result.scalar_one_or_none()
-
-    #         if not task:
-    #             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-            
-    #         task.completed = True
-    #         task.completed_date = datetime.now()
         
-    #         await db.commit()
-        
-    #         return id
-    #     except HTTPException as e:
-    #         raise e
-        
-    #     except Exception as e:
-    #         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     async def deleteTask(self, id:int, db:AsyncSession):
         try:
             stmt = delete(Task).where(Task.id == id)

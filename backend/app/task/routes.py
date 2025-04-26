@@ -35,9 +35,3 @@ async def deleteTask(id: int, db: AsyncSession = Depends(get_db), userId = Depen
     await task_service.task_belongs_to_user(id, userId, db)
     await task_service.deleteTask(id, db)
 
-#keep or not keep, patch gives same functionality
-#keep for now, allows update of task without sending anything in body
-@task_router.patch("/complete/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def completeTask(id: int, db:AsyncSession = Depends(get_db), userId = Depends(get_user_from_token)):
-    await task_service.task_belongs_to_user(id, userId, db)
-    await task_service.completeTask(id, db)
