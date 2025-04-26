@@ -1,5 +1,24 @@
 import pytest
 from fastapi import status
+
+invalid_priority_response = {
+            "detail": [
+                {
+                    "type": "enum",
+                    "loc": [
+                        "body",
+                        "priority"
+                    ],
+                    "msg": "Input should be 3, 2, 1 or 0",
+                    "input": 10,
+                    "ctx": {
+                        "expected": "3, 2, 1 or 0"
+                    }
+                }
+            ]
+        }
+
+
 @pytest.mark.asyncio
 async def test_get_tasks(client, get_auth_header_for_user, create_test_collection):
     response = await client.get(f'task/{create_test_collection.id}',
@@ -38,6 +57,17 @@ async def test_create_task(client, get_auth_header_for_user, create_test_collect
     assert response.status_code == status.HTTP_201_CREATED
 
 @pytest.mark.asyncio
+async def test_create_task_missing_collection_id(client,get_auth_header_for_user):
+    response = await client.post(f'task/add',
+                                 json={
+                                     "name":"test",
+                                     "priority":1,
+                                 },
+                                 headers={"Authorization":get_auth_header_for_user})
+    
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+@pytest.mark.asyncio
 async def test_create_task_invalid_priority(client, get_auth_header_for_user, create_test_collection):
     response = await client.post(f'task/add',
                                  json={
@@ -47,6 +77,7 @@ async def test_create_task_invalid_priority(client, get_auth_header_for_user, cr
                                 },
                                 headers = {"Authorization":get_auth_header_for_user})
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.json() == invalid_priority_response
 
 @pytest.mark.asyncio
 async def test_create_task_collection_doesnt_exist(client,get_auth_header_for_user):
@@ -99,22 +130,7 @@ async def test_update_task_invalid_priority(client, create_test_task, get_auth_h
                                     "id": create_test_task.id
                                     })
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-    assert response.json() == {
-            "detail": [
-                {
-                    "type": "enum",
-                    "loc": [
-                        "body",
-                        "priority"
-                    ],
-                    "msg": "Input should be 3, 2, 1 or 0",
-                    "input": 10,
-                    "ctx": {
-                        "expected": "3, 2, 1 or 0"
-                    }
-                }
-            ]
-        }
+    assert response.json() == invalid_priority_response
 
 
 @pytest.mark.asyncio
