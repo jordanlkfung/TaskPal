@@ -1,9 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete, desc
-from .model import Task, TaskPriority
+from sqlalchemy import select, delete
+from .model import Task
 from .schemas import addTaskSchema, updateTaskSchema
 from fastapi import HTTPException, status
-from datetime import datetime
 from app.collection.model import Collection
 
 class TaskService:
@@ -19,16 +18,7 @@ class TaskService:
             result = await db.execute(stmt)
 
             return result.mappings().all()
-            # data = result.fetchall()
-
-            # res = []
-            # for id, name, priority, create_date, completed in data:
-            #     res.append({"id":id,
-            #                 "name":name,
-            #                 "priority":priority,
-            #                 "create_date":create_date,
-            #                 "completed":completed})
-            # return res
+        
         except Exception as e:
             print(e)
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
