@@ -34,10 +34,8 @@ class app:
         response = requests.post(f'{BASE_URL}/user/login', json={"email":email, 'password':password})
         if response.status_code == 200:
             self.token = response.headers['Authorization']
-            # self.collectionsScreen()
         else:
             print(f"Login response code: {response.status_code}")
-            # error_func(response.status_code, response['detail'])
         return response.status_code
 
     def signupfunc(self, email, password):
@@ -45,7 +43,6 @@ class app:
         self.token = response.headers['Authorization']
         if response.status_code == 201:
             self.token = response.headers['Authorization']
-            # self.collectionsScreen()
         return response.status_code
 
     def initScreen(self):
@@ -92,17 +89,20 @@ class app:
             else:
                 setErrorMsg("Server Error, please try again")
 
-        def checkEmail(input):
-            if valid_email(input):
-                removeErrorMsg()
-            else:
-                setErrorMsg("Invalid Email Format")
+        # def checkEmail(event):
+        #     print(event.char)
+        #     if valid_email(event):
+        #         removeErrorMsg()
+        #     else:
+        #         setErrorMsg("Invalid Email")
 
         ttk.Label(root, text=buttonText, font=("Arial", 20, "bold")).place(relx=0.5, rely=0.1, anchor="center")
 
         ttk.Label(root, text="Email Address:", font=("Arial", 14)).place(relx=0.5, rely=0.28, anchor="center")
         email = tk.StringVar()
-        ttk.Entry(root, textvariable=email, width=30).place(relx=0.5, rely=0.34, anchor="center")
+        email_entry = ttk.Entry(root, textvariable=email, width=30)
+        email_entry.place(relx=0.5, rely=0.34, anchor="center")
+        # email_entry.bind('<Key>', checkEmail)
 
         ttk.Label(root, text="Password:", font=("Arial", 14)).place(relx=0.5, rely=0.43, anchor="center")
         password = tk.StringVar()
@@ -220,7 +220,7 @@ class app:
                 text = 'Completed'
             ttk.Button(self.content, text=text, command=lambda x= task: markComplete(x, i)).grid(column=4, row=i+2, columnspan=1, sticky='nsew', padx=5)
             
-            ttk.Button(self.content, text="Edit", command= lambda x = task: self.updateTaskScreen(task)).grid(column=5, row=i+2, sticky='nsew', padx=5)
+            ttk.Button(self.content, text="Edit", command= lambda x = task: self.updateTaskScreen(x, (collectionId, collection_name))).grid(column=5, row=i+2, sticky='nsew', padx=5)
             ttk.Button(self.content, text="Delete", command=lambda x=task['id']: deleteTask(x)).grid(column=6, row=i+2, padx=(5,10), sticky='nsew')
             
         ttk.Button(self.content, text="Add Task", command=lambda x=collectionId, y=collection_name: self.createTaskScreen(x, y)).place(relx=.5, rely=.9, anchor='center')
@@ -331,40 +331,62 @@ class app:
         ttk.Button(self.content, text="Cancel", width=15, command=self.collectionsScreen).place(relx=.5, rely=.6, anchor='center')
         ttk.Button(self.content, text="Update", width=15, command=update).place(relx=.5, rely=.68, anchor='center')
 
-    def updateTaskScreen(self, task):
+    def updateTaskScreen(self, task, task_screen_parameters):
         for i in self.content.winfo_children():
             i.destroy()
 
         error_msg = None
+        def navigate_to_task_screen():
+            self.taskScreen(task_screen_parameters[0], task_screen_parameters[1])
         def remove_error():
+            nonlocal error_msg
             if error_msg:
                 error_msg.destroy()
                 error_msg = None
         def set_error_msg_name(message):
+            nonlocal error_msg
             error_msg = ttk.Label(self.content, foreground='red', text=message)
-            error_msg.place(relx=.5)
+            error_msg.place(relx=.5, rely=.62, anchor='center')
         
-            
+
         def updateTask():
-            response = requests.patch()
-        print(task)
+            new_name = collection_name.get()
+            new_priority = combobox.get()
+            if not new_name or not new_priority:
+                set_error_msg_name("Missing name")
+                return
+            
+            updated_task = task
+            updated_task['name'] = new_name
+            updated_task['priority'] = get_priority_val(new_priority)
+            response = requests.patch(f'{BASE_URL}/task/',
+                                      headers={"Authorization":self.token},
+                                      json=updated_task)
+            
+            if response.status_code == 204:
+                navigate_to_task_screen()
+            elif response.status_code >=400 and response.status_code < 500:
+                set_error_msg_name("Invalid name or priority")
+            else:
+                set_error_msg_name("Server error, please try again")
+        
         ttk.Label(self.content, text="Edit Task", font=("Helvetica", 22, "bold")).place(relx=.5, rely=.25, anchor='center')
         ttk.Label(self.content, text="Task Name", font=("Helvetica", 14)).place(relx=.5, rely=.34, anchor='center')
         collection_name = tk.StringVar(master=self.content, value=task['name'])
 
         name_entry = tk.Entry(self.content, textvariable=collection_name, width=25)
         name_entry.place(relx=.5, rely=.4, relheight=.07, anchor='center')
-        name_entry.update()
-        name_entry.update_idletasks()
+        name_entry.update() # this is needed so that the name will load instantly
         name_entry.bind('<Key>', lambda x: remove_error())
 
         ttk.Label(self.content, text='Priority').place(relx=0.5, rely=0.48, anchor='center')
 
-        combobox = ttk.Combobox(self.content, state='readonly', values=list(str_to_val.keys()), width=20)
+        combobox = ttk.Combobox(self.content, state='readonly', values=list(str_to_val.keys()), width=20, validate='focus', validatecommand=remove_error)
         combobox.set(get_priority_str(task['priority']).upper())
         combobox.place(relx=0.5, rely=0.54, anchor='center')
+        # combobox.bind('<<ComboboxSelected>>', func=lambda x: remove_error())
         
-        ttk.Button(self.content, text="Cancel", width=15, command=self.collectionsScreen).place(relx=.5, rely=.7, anchor='center')
+        ttk.Button(self.content, text="Cancel", width=15, command=navigate_to_task_screen).place(relx=.5, rely=.7, anchor='center')
         ttk.Button(self.content, text="Update", width=15, command=updateTask).place(relx=.5, rely=.75, anchor='center')
 
 app(root)
