@@ -1,8 +1,7 @@
 import pytest
-from .conftest import Collection
 from fastapi import status
 @pytest.mark.asyncio
-async def test_get_tasks(client, get_auth_header_for_user, create_test_collection:Collection):
+async def test_get_tasks(client, get_auth_header_for_user, create_test_collection):
     response = await client.get(f'task/{create_test_collection.id}',
                                 headers={"Authorization":get_auth_header_for_user})
     assert response.status_code == status.HTTP_200_OK
@@ -161,17 +160,28 @@ async def test_delete_task(client,create_test_task,get_auth_header_for_user):
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 @pytest.mark.asyncio
-async def test_delete_task_missing_headers():
-    pass
+async def test_delete_task_missing_headers(client, create_test_task):
+    response = await client.delete(f"/task/{create_test_task.id}")
+    
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 @pytest.mark.asyncio
-async def test_delete_task_task_does_not_exist():
-    pass
+async def test_delete_task_task_does_not_exist(client, get_auth_header_for_user):
+    response = await client.delete(f"/task/1",
+                                   headers={"Authorization": get_auth_header_for_user})
+    
+    assert response.status_code == status.HTTP_404_NOT_FOUND
 
 @pytest.mark.asyncio
-async def test_delete_task_unauthorized_user():
-    pass
+async def test_delete_task_unauthorized_user(client, create_test_task, get_auth_header_for_second_user):
+    response = await client.delete(f"/task/{create_test_task.id}",
+                                   headers={"Authorization": get_auth_header_for_second_user})
+    
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 @pytest.mark.asyncio
-async def test_delete_task_invalid_token():
-    pass
+async def test_delete_task_invalid_token(client, create_test_task, get_invalid_auth_heater):
+    response = await client.delete(f"/task/{create_test_task.id}",
+                                   headers={"Authorization": get_invalid_auth_heater})
+    
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
