@@ -18,10 +18,10 @@ RUN apt-get update && apt-get install -y \
 # Copy the application code
 COPY backend .
 
-RUN cd /app && pip install -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Expose port for FastAPI
 EXPOSE 8000
 
 # Start the FastAPI app
-CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
