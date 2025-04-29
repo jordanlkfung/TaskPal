@@ -80,8 +80,8 @@ class app:
             #     setErrorMsg("Missing Email or Password")
             #     return
 
-            # res = func(user_email, user_password)
-            res = func()
+            res = func(user_email, user_password)
+            # res = func()
             if res == 200 or res == 201:
                 self.collectionsScreen()
             elif res >=400 and res <500:

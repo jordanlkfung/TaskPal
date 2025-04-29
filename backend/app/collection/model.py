@@ -13,4 +13,4 @@ class Collection(Base):
     name:Mapped[str]
     collectionOwner_id:Mapped[int] = mapped_column(ForeignKey('users.id'))
     collectionOwner:Mapped['User'] = relationship(back_populates='collection')
-    task:Mapped[List['Task']] = relationship(back_populates='collection')
+    task:Mapped[List['Task']] = relationship(back_populates='collection', cascade="all, delete")
