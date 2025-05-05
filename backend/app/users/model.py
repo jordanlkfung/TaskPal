@@ -6,6 +6,7 @@ if TYPE_CHECKING: #type checking needed to pass flake test
     from app.collection.model import Collection
 
 class User(Base):
+    '''Users schema, 1:M relationship with collections, email is type checked by pydantic'''
     __tablename__ = "users"
     id:Mapped[int] = mapped_column(primary_key=True)
     email:Mapped[str] = mapped_column(unique=True)

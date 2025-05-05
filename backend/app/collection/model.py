@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from app.task.model import Task
 
 class Collection(Base):
+    '''Table collection schema, 1:M relationship with tasks, M:1 relationship with users'''
     __tablename__ = 'collection'
 
     id:Mapped[int] = mapped_column(primary_key=True)

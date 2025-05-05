@@ -14,6 +14,9 @@ class TaskPriority(enum.Enum):
     NONE = 0
 
 class Task(Base):
+    '''
+    Schema for Task table, M:1 relationship with collections
+    '''
     __tablename__ = "task"
 
     id:Mapped[int] = mapped_column(primary_key=True)

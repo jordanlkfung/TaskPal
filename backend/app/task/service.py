@@ -7,9 +7,21 @@ from app.collection.model import Collection
 
 class TaskService:
     async def getTasks(self, collection_Id:int, db:AsyncSession):
-        '''
-        Gets tasks, will order them by if they're completed then by creation date
-        '''
+        """
+        Retrieve tasks for a specific collection.
+
+        Tasks are ordered by completion status, then by priority, and finally by creation date.
+
+        Args:
+            collection_Id (int): The ID of the collection to retrieve tasks from.
+            db (AsyncSession): The asynchronous database session.
+
+        Returns:
+            List[dict]: A list of task mappings (id, name, priority, creation_date, completed).
+
+        Raises:
+            HTTPException: If any error occurs during the query.
+        """
         try:
             stmt = select(Task.id, Task.name,Task.priority, Task.creation_date, Task.completed).where(Task.collection_id == collection_Id).order_by(Task.completed)
 
@@ -24,6 +36,19 @@ class TaskService:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     async def addTask(self, data:addTaskSchema, db:AsyncSession):
+        """
+        Add a new task to the database.
+
+        Args:
+            data (addTaskSchema): The schema containing task data.
+            db (AsyncSession): The asynchronous database session.
+
+        Returns:
+            dict: The created task data with the generated task ID.
+
+        Raises:
+            HTTPException: If the task cannot be created or database commit fails.
+        """
         try:
             new_task_dict = data.model_dump()
             new_task_instance = Task(**new_task_dict)
@@ -40,6 +65,16 @@ class TaskService:
             raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     async def deleteTask(self, id:int, db:AsyncSession):
+        """
+        Delete a task by its ID.
+
+        Args:
+            id (int): The ID of the task to delete.
+            db (AsyncSession): The asynchronous database session.
+
+        Raises:
+            HTTPException: If the task is not found or a database error occurs.
+        """
         try:
             stmt = delete(Task).where(Task.id == id)
 
@@ -60,6 +95,16 @@ class TaskService:
         
 
     async def updateTask(self, updated_task:updateTaskSchema, db:AsyncSession):
+        """
+        Update an existing task with new values.
+
+        Args:
+            updated_task (updateTaskSchema): Schema containing updated task data.
+            db (AsyncSession): The asynchronous database session.
+
+        Raises:
+            HTTPException: If the task is not found or update fails.
+        """
         try:
 
             stmt = select(Task).where(Task.id == updated_task.id)
@@ -83,6 +128,19 @@ class TaskService:
     
     
     async def collectionExists(self, collectionId,db:AsyncSession):
+        """
+        Check if a collection exists and return its owner's user ID.
+
+        Args:
+            collectionId (int): The ID of the collection to check.
+            db (AsyncSession): The asynchronous database session.
+
+        Returns:
+            int: The user ID of the collection owner.
+
+        Raises:
+            HTTPException: If the collection is not found or a database error occurs.
+        """
         try:
             stmt = select(Collection.collectionOwner_id).where(Collection.id == collectionId)
 
@@ -100,6 +158,17 @@ class TaskService:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         
     async def task_belongs_to_user(self, taskId, userId, db:AsyncSession):
+        """
+        Verify if a task belongs to a given user based on collection ownership.
+
+        Args:
+            taskId (int): The ID of the task.
+            userId (int): The ID of the user to verify against.
+            db (AsyncSession): The asynchronous database session.
+
+        Raises:
+            HTTPException: If the task is not found, unauthorized, or a database error occurs.
+        """
         try:
             stmt = select(Collection.collectionOwner_id).join(Task).where(Task.id == taskId)
 
