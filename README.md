@@ -1,50 +1,35 @@
 # TaskPal
-#### To Run Backend
-<<<<<<< Updated upstream
-#### Navigate to ```/backend```
-#### Run in terminal
+
+## Running the Backend Locally
+
+> **NOTE:** If you're running the backend locally, make sure to update the .env located in the frontend and change the `BASE_URL` to match the local backend
+
+You can run the backend using Docker or manually.
+
+### Option 1: Using Docker
+
+Use the `Dockerfile` found in the project root:
+
+```bash
+docker build -t my-backend .
+docker run -p 8000:8000 my-backend
 ```
-fastapi dev app/
+
+### Option 2: Running Manually
+
+From the project root folder run these commands
+```
+cd backend
+pip install -r requirements.txt
+fastapi dev app
 ```
 
-# TaskPal API Documentation
+## Running the Frontend
 
-## Overview
+From the project root folder run these commands
 
-TaskPal provides a set of RESTful APIs for managing tasks and collections. The API allows users to perform actions such as logging in, signing up, adding tasks, updating tasks, and managing collections.
-
-## API Version
-
-- **Version**: 1.0
-- **OpenAPI Version**: 3.1.0
-
-## Authentication
-
-TaskPal uses token-based authentication. You need to log in with your credentials to obtain a token. After obtaining the token, it must be included in the `Authorization` header of your requests.
-
-## Endpoints
-
-### User Endpoints
-
-#### `POST /api/v1/user/login`
-- **Summary**: Login
-- **Request Body**:
-  ```json
-  {
-    "email": "user@example.com",
-    "password": "password123"
-  }
-- **Responses**:
-200 - will include authentication token in the header, this token will be used in future requests to provide userid
-=======
-##### Navigate to main directory
 ```
-fastapi dev main.py
+cd frontend
+pip install -r requirements.txt
+python3 main.py
 ```
-## ALTERNATIVE
-#### Navigate to ```backend```
-#### Run
-```
-fastapi dev app/
-```
->>>>>>> Stashed changes
